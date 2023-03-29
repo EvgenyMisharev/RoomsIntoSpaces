@@ -6,8 +6,8 @@
              xmlns:local="clr-namespace:RoomsIntoSpaces"
              mc:Ignorable="d" 
              Title="Помещения в пространства"
-             WindowStyle="SingleBorderWindow" ResizeMode="NoResize"  Icon="Resources/citrus.ico" WindowStartupLocation="CenterScreen"
-             SizeToContent="Width" Height ="700" Width="500" MinHeight="700" MinWidth="500"
+             WindowStyle="SingleBorderWindow" Icon="Resources/citrus.ico" WindowStartupLocation="CenterScreen"
+             Height ="700" Width="500" MinHeight="700" MinWidth="500"
              KeyDown="Window_KeyDown" Loaded="Window_Loaded">
     <Grid>
         <Grid.RowDefinitions>
@@ -21,26 +21,26 @@
         <ListBox x:Name="listBox_RevitLinkInstance" Margin="10,30,10,10" SelectionMode="Single" SelectionChanged="listBox_RevitLinkInstance_SelectionChanged"/>
 
         <Label x:Name="label_TextParams" Content="Сопоставление текстовых параметров:" Margin="10,5,0,0" Height="25" HorizontalAlignment="Left" VerticalAlignment="Top" Width="280" Grid.Row="1"/>
-        <DataGrid x:Name="dataGrid_TextParams" Margin="10,30,10,10" Grid.Row="1" AutoGenerateColumns="False" SelectionMode="Extended" CanUserAddRows="False" CanUserDeleteRows="False">
+        <DataGrid x:Name="dataGrid_TextParams" Margin="10,30,10,10" Grid.Row="1" AutoGenerateColumns="False" SelectionMode="Extended" CanUserAddRows="False" CanUserDeleteRows="False" PreviewKeyDown="dataGrid_PreviewKeyDown">
             <DataGrid.Columns>
                 <DataGridTextColumn x:Name="dataGridTextColumnTextParams" Header="Параметр пространства" IsReadOnly="True" Width="Auto"  Binding="{Binding Path=SpaceParameter.Definition.Name}"/>
-                <DataGridComboBoxColumn x:Name="dataGridComboBoxRoomTextParams" Header="Параметр помещения" Width="Auto" SelectedItemBinding="{Binding RoomParameter, Mode=TwoWay}"/>
+                <DataGridComboBoxColumn x:Name="dataGridComboBoxRoomTextParams" Header="Параметр помещения" Width="*" SelectedItemBinding="{Binding RoomParameter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </DataGrid.Columns>
         </DataGrid>
 
         <Label x:Name="label_DoubleParams" Content="Сопоставление числовых параметров:" Margin="10,5,0,0" Height="25" HorizontalAlignment="Left" VerticalAlignment="Top" Width="280" Grid.Row="2"/>
-        <DataGrid x:Name="dataGrid_DoubleParams" Margin="10,30,10,10" Grid.Row="2" AutoGenerateColumns="False" SelectionMode="Extended" CanUserAddRows="False" CanUserDeleteRows="False">
+        <DataGrid x:Name="dataGrid_DoubleParams" Margin="10,30,10,10" Grid.Row="2" AutoGenerateColumns="False" SelectionMode="Extended" CanUserAddRows="False" CanUserDeleteRows="False" PreviewKeyDown="dataGrid_PreviewKeyDown">
             <DataGrid.Columns>
                 <DataGridTextColumn x:Name="dataGridTextColumnDoubleParams" Header="Параметр пространства" IsReadOnly="True"  Width="Auto" Binding="{Binding Path=SpaceParameter.Definition.Name}"/>
-                <DataGridComboBoxColumn x:Name="dataGridComboBoxRoomDoubleParams" Header="Параметр помещения" Width="Auto" SelectedItemBinding="{Binding RoomParameter, Mode=TwoWay}"/>
+                <DataGridComboBoxColumn x:Name="dataGridComboBoxRoomDoubleParams" Header="Параметр помещения" Width="*" SelectedItemBinding="{Binding RoomParameter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </DataGrid.Columns>
         </DataGrid>
 
         <Label x:Name="label_IntParams" Content="Сопоставление целочисленных параметров:" Margin="10,5,0,0" Height="25" HorizontalAlignment="Left" VerticalAlignment="Top" Width="280" Grid.Row="3"/>
-        <DataGrid x:Name="dataGrid_IntParams" Margin="10,30,10,10" Grid.Row="3" AutoGenerateColumns="False" SelectionMode="Extended" CanUserAddRows="False" CanUserDeleteRows="False">
+        <DataGrid x:Name="dataGrid_IntParams" Margin="10,30,10,10" Grid.Row="3" AutoGenerateColumns="False" SelectionMode="Extended" CanUserAddRows="False" CanUserDeleteRows="False" PreviewKeyDown="dataGrid_PreviewKeyDown">
             <DataGrid.Columns>
                 <DataGridTextColumn x:Name="dataGridTextColumnIntParams" Header="Параметр пространства" IsReadOnly="True" Width="Auto" Binding="{Binding Path=SpaceParameter.Definition.Name}"/>
-                <DataGridComboBoxColumn x:Name="dataGridComboBoxRoomIntParams" Header="Параметр помещения" Width="Auto" SelectedItemBinding="{Binding RoomParameter, Mode=TwoWay}"/>
+                <DataGridComboBoxColumn x:Name="dataGridComboBoxRoomIntParams" Header="Параметр помещения" Width="*" SelectedItemBinding="{Binding RoomParameter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </DataGrid.Columns>
         </DataGrid>
         <Button x:Name="btn_Open" Content="Открыть" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" Width="80" Height="20" Click="btn_Open_Click" Grid.Row="4"/>
@@ -48,6 +48,5 @@
         
         <Button x:Name="btn_Ok" Content="Ок" HorizontalAlignment="Right" Margin="0,0,125,10" VerticalAlignment="Bottom" Width="100" Height="25" Click="btn_Ok_Click" Grid.Row="4"/>
         <Button x:Name="btn_Cancel" Content="Отмена" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="100" Height="25" Click="btn_Cancel_Click" Grid.Row="4"/>
-
     </Grid>
 </Window>

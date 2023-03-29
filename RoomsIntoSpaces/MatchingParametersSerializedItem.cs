@@ -30,13 +30,10 @@ namespace RoomsIntoSpaces
 {
     public class MatchingParametersSerializedItem
     {
-        public string CollectionName { get; set; }
         public string SpaceParameterName { get; set; }
         public int SpaceParameterParameterGroup { get; set; }
-        public int SpaceParameterParameterType { get; set; }
 
         public string RoomParameterName { get; set; }
         public int RoomParameterParameterGroup { get; set; }
-        public int RoomParameterParameterType { get; set; }
     }
 }

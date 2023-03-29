@@ -28,6 +28,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace RoomsIntoSpaces
@@ -35,9 +36,9 @@ namespace RoomsIntoSpaces
     public partial class RoomsIntoSpacesWPF : Window
     {
         public RevitLinkInstance SelectedRevitLinkInstance;
-        ObservableCollection<MatchingParametersItem> SpaceTextParametersCol;
-        ObservableCollection<MatchingParametersItem> SpaceDoubleParametersCol;
-        ObservableCollection<MatchingParametersItem> SpaceIntParametersCol;
+        public ObservableCollection<MatchingParametersItem> SpaceTextParametersCol;
+        public ObservableCollection<MatchingParametersItem> SpaceDoubleParametersCol;
+        public ObservableCollection<MatchingParametersItem> SpaceIntParametersCol;
 
         List<Parameter> RoomTextParametersList;
         List<Parameter> RoomDoubleParametersList;
@@ -216,7 +217,7 @@ namespace RoomsIntoSpaces
                 }
             }
         }
-
+        //Открыть
         private void btn_Open_Click(object sender, RoutedEventArgs e)
         {
             var openDialog = new System.Windows.Forms.OpenFileDialog();
@@ -238,13 +239,11 @@ namespace RoomsIntoSpaces
                             foreach (MatchingParametersSerializedItem itm in tmp)
                             {
                                 MatchingParametersItem MatchingTextParametersItem = SpaceTextParametersCol.FirstOrDefault(p => p.SpaceParameter.Definition.Name == itm.SpaceParameterName
-                                    && (int)p.SpaceParameter.Definition.ParameterGroup == itm.SpaceParameterParameterGroup
-                                    && (int)p.SpaceParameter.Definition.ParameterType == itm.SpaceParameterParameterType);
+                                    && (int)p.SpaceParameter.Definition.ParameterGroup == itm.SpaceParameterParameterGroup);
                                 if(MatchingTextParametersItem != null)
                                 {
                                     Parameter roomParameter = RoomTextParametersList.FirstOrDefault(p => p.Definition.Name == itm.RoomParameterName
-                                        && (int)p.Definition.ParameterGroup == itm.RoomParameterParameterGroup
-                                        && (int)p.Definition.ParameterType == itm.RoomParameterParameterType);
+                                        && (int)p.Definition.ParameterGroup == itm.RoomParameterParameterGroup);
                                     if(roomParameter != null)
                                     {
                                         MatchingTextParametersItem.RoomParameter = roomParameter;
@@ -252,13 +251,11 @@ namespace RoomsIntoSpaces
                                 }
 
                                 MatchingParametersItem MatchingDoubleParametersItem = SpaceDoubleParametersCol.FirstOrDefault(p => p.SpaceParameter.Definition.Name == itm.SpaceParameterName
-                                    && (int)p.SpaceParameter.Definition.ParameterGroup == itm.SpaceParameterParameterGroup
-                                    && (int)p.SpaceParameter.Definition.ParameterType == itm.SpaceParameterParameterType);
+                                    && (int)p.SpaceParameter.Definition.ParameterGroup == itm.SpaceParameterParameterGroup);
                                 if (MatchingDoubleParametersItem != null)
                                 {
                                     Parameter roomParameter = RoomDoubleParametersList.FirstOrDefault(p => p.Definition.Name == itm.RoomParameterName
-                                        && (int)p.Definition.ParameterGroup == itm.RoomParameterParameterGroup
-                                        && (int)p.Definition.ParameterType == itm.RoomParameterParameterType);
+                                        && (int)p.Definition.ParameterGroup == itm.RoomParameterParameterGroup);
                                     if (roomParameter != null)
                                     {
                                         MatchingDoubleParametersItem.RoomParameter = roomParameter;
@@ -266,13 +263,11 @@ namespace RoomsIntoSpaces
                                 }
 
                                 MatchingParametersItem MatchingIntParametersItem = SpaceIntParametersCol.FirstOrDefault(p => p.SpaceParameter.Definition.Name == itm.SpaceParameterName
-                                    && (int)p.SpaceParameter.Definition.ParameterGroup == itm.SpaceParameterParameterGroup
-                                    && (int)p.SpaceParameter.Definition.ParameterType == itm.SpaceParameterParameterType);
+                                    && (int)p.SpaceParameter.Definition.ParameterGroup == itm.SpaceParameterParameterGroup);
                                 if (MatchingIntParametersItem != null)
                                 {
                                     Parameter roomParameter = RoomIntParametersList.FirstOrDefault(p => p.Definition.Name == itm.RoomParameterName
-                                        && (int)p.Definition.ParameterGroup == itm.RoomParameterParameterGroup
-                                        && (int)p.Definition.ParameterType == itm.RoomParameterParameterType);
+                                        && (int)p.Definition.ParameterGroup == itm.RoomParameterParameterGroup);
                                     if (roomParameter != null)
                                     {
                                         MatchingIntParametersItem.RoomParameter = roomParameter;
@@ -306,11 +301,9 @@ namespace RoomsIntoSpaces
                     {
                         SpaceParameterName = item.SpaceParameter.Definition.Name,
                         SpaceParameterParameterGroup = (int)item.SpaceParameter.Definition.ParameterGroup,
-                        SpaceParameterParameterType = (int)item.SpaceParameter.Definition.ParameterType,
 
                         RoomParameterName = item.RoomParameter.Definition.Name,
                         RoomParameterParameterGroup = (int)item.RoomParameter.Definition.ParameterGroup,
-                        RoomParameterParameterType = (int)item.RoomParameter.Definition.ParameterType
                     }); 
                 }
             }
@@ -330,6 +323,31 @@ namespace RoomsIntoSpaces
             dataGridTextColumnTextParams.Width = maxWidth;
             dataGridTextColumnDoubleParams.Width = maxWidth;
             dataGridTextColumnIntParams.Width = maxWidth;
+        }
+
+        private void dataGrid_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            DataGrid dataGrid = sender as DataGrid;
+            if(dataGrid != null)
+            {
+                if ((e.Key == Key.Delete || e.Key == Key.Back) && dataGrid.CurrentCell.Column is DataGridComboBoxColumn)
+                {
+                    var svp = (MatchingParametersItem)dataGrid.SelectedItem;
+                    if(svp != null)
+                    {
+                        svp.RoomParameter = null;
+                        dataGrid_TextParams.ItemsSource = null;
+                        dataGrid_TextParams.ItemsSource = SpaceTextParametersCol;
+
+                        dataGrid_DoubleParams.ItemsSource = null;
+                        dataGrid_DoubleParams.ItemsSource = SpaceDoubleParametersCol;
+
+                        dataGrid_IntParams.ItemsSource = null;
+                        dataGrid_IntParams.ItemsSource = SpaceIntParametersCol;
+                    }
+                    e.Handled = true;
+                }
+            }
         }
     }
 }

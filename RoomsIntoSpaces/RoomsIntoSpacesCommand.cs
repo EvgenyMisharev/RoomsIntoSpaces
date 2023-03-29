@@ -73,6 +73,33 @@ namespace RoomsIntoSpaces
             linkDoc = roomsIntoSpacesWPF.SelectedRevitLinkInstance.GetLinkDocument();
             Transform transform = roomsIntoSpacesWPF.SelectedRevitLinkInstance.GetTotalTransform();
 
+            List<MatchingParametersItem> spaceTextParametersList = new List<MatchingParametersItem>();
+            if (roomsIntoSpacesWPF.SpaceTextParametersCol != null)
+            {
+                spaceTextParametersList = roomsIntoSpacesWPF
+                    .SpaceTextParametersCol
+                    .Where(p => p.RoomParameter != null)
+                    .ToList();
+            }
+
+            List<MatchingParametersItem> spaceDoubleParametersList = new List<MatchingParametersItem>();
+            if (roomsIntoSpacesWPF.SpaceDoubleParametersCol != null)
+            {
+                spaceDoubleParametersList = roomsIntoSpacesWPF
+                    .SpaceDoubleParametersCol
+                    .Where(p => p.RoomParameter != null)
+                    .ToList();
+            }
+
+            List<MatchingParametersItem> spaceIntParametersList = new List<MatchingParametersItem>();
+            if (roomsIntoSpacesWPF.SpaceIntParametersCol != null)
+            {
+                spaceIntParametersList = roomsIntoSpacesWPF
+                    .SpaceIntParametersCol
+                    .Where(p => p.RoomParameter != null)
+                    .ToList();
+            }
+
             List<Level> docLvlList = new FilteredElementCollector(doc)
                 .OfCategory(BuiltInCategory.OST_Levels)
                 .WhereElementIsNotElementType()
@@ -95,7 +122,7 @@ namespace RoomsIntoSpaces
                 foreach (Room room in roomListFromLink)
                 {
                     // Получаем точку расположения помещения
-                    XYZ location = (room.Location as LocationPoint).Point;
+                    XYZ location = transform.OfPoint((room.Location as LocationPoint).Point);
 
                     // Проверяем, есть ли уже пространство на этой точке
                     Space existingSpace = doc.GetSpaceAtPoint(location);
@@ -106,31 +133,58 @@ namespace RoomsIntoSpaces
                         {
                             existingSpace = doc.GetElement(existingSpaceId) as Space;
 
-                            // Проверяем, совпадает ли геометрия помещения и пространства
-                            GeometryElement roomGeometry = room.get_Geometry(new Options());
-                            GeometryElement spaceGeometry = existingSpace.get_Geometry(new Options());
-
-                            foreach (GeometryObject roomObject in roomGeometry)
+                            string spaceNumber = existingSpace.Number;
+                            string spaceName = existingSpace.Name;
+                            // Обновляем номер и имя пространства, если они отличаются от номера и имени помещения
+                            if (spaceNumber != room.get_Parameter(BuiltInParameter.ROOM_NUMBER).AsString() ||
+                                spaceName != room.get_Parameter(BuiltInParameter.ROOM_NAME).AsString())
                             {
-                                Solid roomSolid = roomObject as Solid;
-                                if (roomSolid != null)
+                                existingSpace.get_Parameter(BuiltInParameter.ROOM_NUMBER).Set(room.get_Parameter(BuiltInParameter.ROOM_NUMBER).AsString());
+                                existingSpace.get_Parameter(BuiltInParameter.ROOM_NAME).Set(room.get_Parameter(BuiltInParameter.ROOM_NAME).AsString());
+                            }
+                            foreach (MatchingParametersItem item in spaceTextParametersList)
+                            {
+                                if (existingSpace.get_Parameter(item.SpaceParameter.Definition) != null)
                                 {
-                                    foreach (GeometryObject spaceObject in spaceGeometry)
+                                    if (room.get_Parameter(item.RoomParameter.Definition) != null)
                                     {
-                                        Solid spaceSolid = spaceObject as Solid;
-                                        if (spaceSolid != null && BooleanOperationsUtils.ExecuteBooleanOperation(roomSolid, spaceSolid, BooleanOperationsType.Intersect).Volume != 0)
+                                        if (existingSpace.get_Parameter(item.SpaceParameter.Definition).AsString()
+                                            != room.get_Parameter(item.RoomParameter.Definition).AsString())
                                         {
-                                            // Если геометрия пересекается, то обновляем номер и имя пространства
-                                            string spaceNumber = existingSpace.Number;
-                                            string spaceName = existingSpace.Name;
-                                            // Обновляем номер и имя пространства, если они отличаются от номера и имени помещения
-                                            if (spaceNumber != room.get_Parameter(BuiltInParameter.ROOM_NUMBER).AsString() ||
-                                                spaceName != room.get_Parameter(BuiltInParameter.ROOM_NAME).AsString())
-                                            {
-                                                existingSpace.get_Parameter(BuiltInParameter.ROOM_NUMBER).Set(room.get_Parameter(BuiltInParameter.ROOM_NUMBER).AsString());
-                                                existingSpace.get_Parameter(BuiltInParameter.ROOM_NAME).Set(room.get_Parameter(BuiltInParameter.ROOM_NAME).AsString());
-                                            }
-                                            break;
+                                            existingSpace.get_Parameter(item.SpaceParameter.Definition)
+                                            .Set(room.get_Parameter(item.RoomParameter.Definition).AsString());
+                                        }
+                                    }
+                                }
+                            }
+
+                            foreach (MatchingParametersItem item in spaceDoubleParametersList)
+                            {
+                                if (existingSpace.get_Parameter(item.SpaceParameter.Definition) != null)
+                                {
+                                    if (room.get_Parameter(item.RoomParameter.Definition) != null)
+                                    {
+                                        if (existingSpace.get_Parameter(item.SpaceParameter.Definition).AsDouble()
+                                            != room.get_Parameter(item.RoomParameter.Definition).AsDouble())
+                                        {
+                                            existingSpace.get_Parameter(item.SpaceParameter.Definition)
+                                            .Set(room.get_Parameter(item.RoomParameter.Definition).AsDouble());
+                                        }
+                                    }
+                                }
+                            }
+
+                            foreach (MatchingParametersItem item in spaceIntParametersList)
+                            {
+                                if (existingSpace.get_Parameter(item.SpaceParameter.Definition) != null)
+                                {
+                                    if (room.get_Parameter(item.RoomParameter.Definition) != null)
+                                    {
+                                        if (existingSpace.get_Parameter(item.SpaceParameter.Definition).AsInteger()
+                                            != room.get_Parameter(item.RoomParameter.Definition).AsInteger())
+                                        {
+                                            existingSpace.get_Parameter(item.SpaceParameter.Definition)
+                                                .Set(room.get_Parameter(item.RoomParameter.Definition).AsInteger());
                                         }
                                     }
                                 }
@@ -149,6 +203,42 @@ namespace RoomsIntoSpaces
                         Space space = doc.Create.NewSpace(closestRoomLevel, roomUVLocation);
                         space.get_Parameter(BuiltInParameter.ROOM_NUMBER).Set(room.get_Parameter(BuiltInParameter.ROOM_NUMBER).AsString());
                         space.get_Parameter(BuiltInParameter.ROOM_NAME).Set(room.get_Parameter(BuiltInParameter.ROOM_NAME).AsString());
+
+                        foreach (MatchingParametersItem item in spaceTextParametersList)
+                        {
+                            if(space.get_Parameter(item.SpaceParameter.Definition) != null)
+                            {
+                                if(room.get_Parameter(item.RoomParameter.Definition) != null)
+                                {
+                                    space.get_Parameter(item.SpaceParameter.Definition)
+                                        .Set(room.get_Parameter(item.RoomParameter.Definition).AsString());
+                                }
+                            }
+                        }
+
+                        foreach (MatchingParametersItem item in spaceDoubleParametersList)
+                        {
+                            if (space.get_Parameter(item.SpaceParameter.Definition) != null)
+                            {
+                                if (room.get_Parameter(item.RoomParameter.Definition) != null)
+                                {
+                                    space.get_Parameter(item.SpaceParameter.Definition)
+                                        .Set(room.get_Parameter(item.RoomParameter.Definition).AsDouble());
+                                }
+                            }
+                        }
+
+                        foreach (MatchingParametersItem item in spaceIntParametersList)
+                        {
+                            if (space.get_Parameter(item.SpaceParameter.Definition) != null)
+                            {
+                                if (room.get_Parameter(item.RoomParameter.Definition) != null)
+                                {
+                                    space.get_Parameter(item.SpaceParameter.Definition)
+                                        .Set(room.get_Parameter(item.RoomParameter.Definition).AsInteger());
+                                }
+                            }
+                        }
                     }
                  }    
                 t.Commit();
