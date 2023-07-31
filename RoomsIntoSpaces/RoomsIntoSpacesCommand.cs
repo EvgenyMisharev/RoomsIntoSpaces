@@ -27,8 +27,6 @@ using Autodesk.Revit.UI.Selection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RoomsIntoSpaces
 {
@@ -44,6 +42,7 @@ namespace RoomsIntoSpaces
             List<RevitLinkInstance> revitLinkInstanceList = new FilteredElementCollector(doc)
                 .OfClass(typeof(RevitLinkInstance))
                 .Cast<RevitLinkInstance>()
+                .Where(rli => rli.GetLinkDocument() != null)
                 .ToList();
             if (revitLinkInstanceList.Count == 0)
             {
