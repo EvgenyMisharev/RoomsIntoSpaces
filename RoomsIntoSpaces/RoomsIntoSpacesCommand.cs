@@ -70,7 +70,7 @@ namespace RoomsIntoSpaces
                 return Result.Cancelled;
             }
             linkDoc = roomsIntoSpacesWPF.SelectedRevitLinkInstance.GetLinkDocument();
-            Transform transform = roomsIntoSpacesWPF.SelectedRevitLinkInstance.GetTotalTransform();
+            Transform transform = roomsIntoSpacesWPF.SelectedRevitLinkInstance.GetTransform();
 
             List<MatchingParametersItem> spaceTextParametersList = new List<MatchingParametersItem>();
             if (roomsIntoSpacesWPF.SpaceTextParametersCol != null)
@@ -121,7 +121,7 @@ namespace RoomsIntoSpaces
                 foreach (Room room in roomListFromLink)
                 {
                     // Получаем точку расположения помещения
-                    XYZ location = transform.OfPoint((room.Location as LocationPoint).Point);
+                    XYZ location = transform.OfPoint((room.Location as LocationPoint).Point + 200 / 304.8 * XYZ.BasisZ);
 
                     // Проверяем, есть ли уже пространство на этой точке
                     Space existingSpace = doc.GetSpaceAtPoint(location);
