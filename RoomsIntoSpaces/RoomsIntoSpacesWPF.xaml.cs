@@ -240,11 +240,11 @@ namespace RoomsIntoSpaces
                             {
                                 MatchingParametersItem MatchingTextParametersItem = SpaceTextParametersCol.FirstOrDefault(p => p.SpaceParameter.Definition.Name == itm.SpaceParameterName
                                     && (int)p.SpaceParameter.Definition.ParameterGroup == itm.SpaceParameterParameterGroup);
-                                if(MatchingTextParametersItem != null)
+                                if (MatchingTextParametersItem != null)
                                 {
                                     Parameter roomParameter = RoomTextParametersList.FirstOrDefault(p => p.Definition.Name == itm.RoomParameterName
                                         && (int)p.Definition.ParameterGroup == itm.RoomParameterParameterGroup);
-                                    if(roomParameter != null)
+                                    if (roomParameter != null)
                                     {
                                         MatchingTextParametersItem.RoomParameter = roomParameter;
                                     }
@@ -304,7 +304,7 @@ namespace RoomsIntoSpaces
 
                         RoomParameterName = item.RoomParameter.Definition.Name,
                         RoomParameterParameterGroup = (int)item.RoomParameter.Definition.ParameterGroup,
-                    }); 
+                    });
                 }
             }
 
@@ -328,12 +328,12 @@ namespace RoomsIntoSpaces
         private void dataGrid_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             DataGrid dataGrid = sender as DataGrid;
-            if(dataGrid != null)
+            if (dataGrid != null)
             {
                 if ((e.Key == Key.Delete || e.Key == Key.Back) && dataGrid.CurrentCell.Column is DataGridComboBoxColumn)
                 {
                     var svp = (MatchingParametersItem)dataGrid.SelectedItem;
-                    if(svp != null)
+                    if (svp != null)
                     {
                         svp.RoomParameter = null;
                         dataGrid_TextParams.ItemsSource = null;

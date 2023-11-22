@@ -26,7 +26,9 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace RoomsIntoSpaces
 {
@@ -35,6 +37,12 @@ namespace RoomsIntoSpaces
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
+            try
+            {
+                GetPluginStartInfo();
+            }
+            catch { }
+
             Document doc = commandData.Application.ActiveUIDocument.Document;
             Selection sel = commandData.Application.ActiveUIDocument.Selection;
             Document linkDoc = null;
@@ -125,7 +133,7 @@ namespace RoomsIntoSpaces
 
                     // Проверяем, есть ли уже пространство на этой точке
                     Space existingSpace = doc.GetSpaceAtPoint(location);
-                    if(existingSpace != null)
+                    if (existingSpace != null)
                     {
                         ElementId existingSpaceId = existingSpace.Id;
                         if (existingSpaceId != ElementId.InvalidElementId)
@@ -205,9 +213,9 @@ namespace RoomsIntoSpaces
 
                         foreach (MatchingParametersItem item in spaceTextParametersList)
                         {
-                            if(space.get_Parameter(item.SpaceParameter.Definition) != null)
+                            if (space.get_Parameter(item.SpaceParameter.Definition) != null)
                             {
-                                if(room.get_Parameter(item.RoomParameter.Definition) != null)
+                                if (room.get_Parameter(item.RoomParameter.Definition) != null)
                                 {
                                     space.get_Parameter(item.SpaceParameter.Definition)
                                         .Set(room.get_Parameter(item.RoomParameter.Definition).AsString());
@@ -239,7 +247,7 @@ namespace RoomsIntoSpaces
                             }
                         }
                     }
-                 }    
+                }
                 t.Commit();
             }
             return Result.Succeeded;
@@ -259,6 +267,27 @@ namespace RoomsIntoSpaces
                 }
             }
             return lvl;
+        }
+        private static void GetPluginStartInfo()
+        {
+            // Получаем сборку, в которой выполняется текущий код
+            Assembly thisAssembly = Assembly.GetExecutingAssembly();
+            string assemblyName = "RoomsIntoSpaces";
+            string assemblyNameRus = "Помещения в пространства";
+            string assemblyFolderPath = Path.GetDirectoryName(thisAssembly.Location);
+
+            int lastBackslashIndex = assemblyFolderPath.LastIndexOf("\\");
+            string dllPath = assemblyFolderPath.Substring(0, lastBackslashIndex + 1) + "PluginInfoCollector\\PluginInfoCollector.dll";
+
+            Assembly assembly = Assembly.LoadFrom(dllPath);
+            Type type = assembly.GetType("PluginInfoCollector.InfoCollector");
+            var constructor = type.GetConstructor(new Type[] { typeof(string), typeof(string) });
+
+            if (type != null)
+            {
+                // Создание экземпляра класса
+                object instance = Activator.CreateInstance(type, new object[] { assemblyName, assemblyNameRus });
+            }
         }
     }
 }
